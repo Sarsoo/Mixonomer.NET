@@ -1,4 +1,4 @@
-[Mixonomer.NET](https://music.sarsoo.xyz)
+[Mixonomer.NET](https://mixonomer.sarsoo.xyz)
 ==================
 
 ![ci](https://github.com/sarsoo/Mixonomer.NET/actions/workflows/ci.yml/badge.svg)
