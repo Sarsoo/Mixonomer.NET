@@ -6,7 +6,7 @@ using Google.Cloud.Functions.Framework;
 using Google.Events.Protobuf.Cloud.PubSub.V1;
 using Microsoft.Extensions.Logging;
 
-namespace MusicTools.Func
+namespace Mixonomer.Func
 {
     public class RunUserPlaylist : ICloudEventFunction<MessagePublishedData>
     {

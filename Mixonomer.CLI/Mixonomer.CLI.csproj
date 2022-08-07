@@ -6,6 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MusicTools.Fire\MusicTools.Fire.csproj" />
+    <ProjectReference Include="..\Mixonomer.Fire\Mixonomer.Fire.csproj" />
   </ItemGroup>
 </Project>

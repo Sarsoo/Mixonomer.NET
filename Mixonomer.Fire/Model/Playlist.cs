@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Google.Cloud.Firestore;
 
-namespace MusicTools.Fire
+namespace Mixonomer.Fire
 {
     [FirestoreData]
     public class Playlist

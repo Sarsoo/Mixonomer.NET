@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MusicTools.Fire\MusicTools.Fire.csproj" />
-    <ProjectReference Include="..\MusicTools.Func\MusicTools.Func.csproj" />
+    <ProjectReference Include="..\Mixonomer.Fire\Mixonomer.Fire.csproj" />
+    <ProjectReference Include="..\Mixonomer.Func\Mixonomer.Func.csproj" />
   </ItemGroup>
 </Project>

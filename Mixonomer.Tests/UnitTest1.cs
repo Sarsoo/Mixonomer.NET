@@ -1,8 +1,8 @@
 ﻿using System;
-using MusicTools.Fire;
+using Mixonomer.Fire;
 using Xunit;
 
-namespace MusicTools.Tests
+namespace Mixonomer.Tests
 {
     public class UnitTest1
     {

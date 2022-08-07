@@ -1,8 +1,8 @@
 ﻿using System;
-using MusicTools.Fire;
+using Mixonomer.Fire;
 using System.Threading.Tasks;
 
-namespace MusicTools.CLI
+namespace Mixonomer.CLI
 {
     class Program
     {
