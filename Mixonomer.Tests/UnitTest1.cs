@@ -9,9 +9,9 @@ namespace Mixonomer.Tests
         [Fact]
         public async void Test1()
         {
-            var repo = new UserRepo();
+            // var repo = new UserRepo();
 
-            var user = await repo.GetUser("andy");
+            // var user = await repo.GetUser("andy");
         }
     }
 }

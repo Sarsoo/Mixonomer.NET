@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            // agent {
+            //     docker {
+            //         image 'mcr.microsoft.com/dotnet/sdk:6.0'
+            //     }
+            // }
+            steps {
+                dotnetRestore project: "Mixonomer.NET.sln"
+                dotnetBuild project: 'Mixonomer.NET.sln'
+            }
+        }
+
+        stage('Test') {
+            // agent {
+            //     docker {
+            //         image 'mcr.microsoft.com/dotnet/sdk:6.0'
+            //         reuseNode true
+            //     }
+            // }
+            steps {
+                dotnetTest project: "Mixonomer.NET.sln"
+            }
+        }
+        // stage('Deploy') {
+        //     when { branch 'master' }
+        //     steps {
+        //         script {
+        //             docker.withRegistry('https://registry.sarsoo.xyz', 'git-registry-creds') {
+
+        //                 docker.build("sarsoo/selector-cli:latest",
+        //                             "-f Dockerfile.CLI .").push()
+
+        //                 docker.build("sarsoo/selector-web:latest",
+        //                             "-f Dockerfile.Web .").push()
+        //             }
+        //         }
+        //     }
+        // }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
