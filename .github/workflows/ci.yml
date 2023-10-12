@@ -46,6 +46,7 @@ jobs:
 
       - name: Deploy RunUserPlaylist
         run: |
+          cd Mixonomer.Func && \
           gcloud functions deploy RunUserPlaylist \
           --region europe-west2 \
           --gen2 \
