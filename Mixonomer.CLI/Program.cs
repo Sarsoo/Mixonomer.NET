@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using Mixonomer.Fire;
 using System.Threading.Tasks;
+using Mixonomer.Fire.Extensions;
 
 namespace Mixonomer.CLI
 {
@@ -8,18 +10,11 @@ namespace Mixonomer.CLI
     {
         static async Task Main(string[] args)
         {
-            var repo = new UserRepo(projectId: "sarsooxyz");
+            var repo = new UserRepo(projectId: "mixonomer-test");
 
-            var user = await repo.GetUser("andy");
-            var playlists = await repo.GetPlaylists("andy");
+            var userContext = await repo.GetUserContext("andy");
 
-            await foreach (var playlist in playlists)
-            {
-                var dict = playlist.ToDictionary();
-                var playlistObj = playlist.ConvertTo<Playlist>();
-            }
-
-            Console.WriteLine(user);
+            Console.WriteLine(userContext.User);
         }
     }
 }

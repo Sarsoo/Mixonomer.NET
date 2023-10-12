@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Google.Cloud.Firestore;
 
 namespace Mixonomer.Fire
@@ -14,6 +15,8 @@ namespace Mixonomer.Fire
         public DateTime last_login { get; set; }
         [FirestoreProperty]
         public DateTime last_refreshed { get; set; }
+        [FirestoreProperty]
+        public DateTime last_keygen { get; set; }
         [FirestoreProperty]
         public string lastfm_username { get; set; }
         [FirestoreProperty]
@@ -32,6 +35,17 @@ namespace Mixonomer.Fire
         public string username { get; set; }
         [FirestoreProperty]
         public bool validated { get; set; }
+
+        [FirestoreProperty]
+        public IEnumerable<string> apns_tokens { get; set; }
+        [FirestoreProperty]
+        public bool notify { get; set; }
+        [FirestoreProperty]
+        public bool notify_admins { get; set; }
+        [FirestoreProperty]
+        public bool notify_playlist_updates { get; set; }
+        [FirestoreProperty]
+        public bool notify_tag_updates { get; set; }
 
         [FirestoreDocumentId]
         public DocumentReference Reference { get; set; }

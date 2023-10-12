@@ -32,13 +32,18 @@ namespace Mixonomer.Fire
             return querySnapshot.SingleOrDefault()?.ConvertTo<User>();
         }
 
-        public async Task<IAsyncEnumerable<DocumentSnapshot>> GetPlaylists(string username)
+        public Task<IAsyncEnumerable<DocumentSnapshot>> GetPlaylistDocs(User user)
         {
-            var user = await GetUser(username);
-
             var playlistCollection = db.Collection($"{USER_COLLECTION}/{user.Reference.Id}/playlists");
 
-            return playlistCollection.StreamAsync();
+            return Task.FromResult(playlistCollection.StreamAsync());
+        }
+
+        public Task<IAsyncEnumerable<DocumentSnapshot>> GetTagDocs(User user)
+        {
+            var playlistCollection = db.Collection($"{USER_COLLECTION}/{user.Reference.Id}/tags");
+
+            return Task.FromResult(playlistCollection.StreamAsync());
         }
     }
 }
