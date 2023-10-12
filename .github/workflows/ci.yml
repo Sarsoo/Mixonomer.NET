@@ -2,26 +2,53 @@ name: ci
 
 on: [push]
 
+env:
+  dotnet-version: '6.0.x'
+
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        dotnet-version: [ '6.0.x' ]
-
+    name: Build & Unit Test
     steps:
       - uses: actions/checkout@v3
-      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+
+      - name: Setup .NET Core SDK ${{ env.dotnet-version }}
         uses: actions/setup-dotnet@v3.2.0
         with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+          dotnet-version: ${{ env.dotnet-version }}
 
       - name: Install Dependencies
         run: dotnet restore
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
-      # - name: Test
-      #   run: dotnet test --no-restore --verbosity normal
+
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal
+
+  deploytest:
+    runs-on: ubuntu-latest
+    name: Deploy Test
+    environment: 
+      name: test
+      url: https://test.mixonomer.sarsoo.xyz
+    needs: build # for ignoring bad builds
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v3 # get source
+
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - uses: 'google-github-actions/deploy-cloud-functions@v1'
+        with:
+          name: 'RunUserPlaylist'
+          runtime: 'dotnet6'
+          entry_point: 'Mixonomer.Func.RunUserPlaylist'
+          source_dir: 'Mixonomer.Func'
+          env_vars: 'GOOGLE_CLOUD_PROJECT=${{ vars.GCP_PROJECT }}'
+          service_account_email: 'runuserplaylist-func@${{ vars.GCP_PROJECT }}.iam.gserviceaccount.com'
+          event_trigger_type: providers/cloud.pubsub/eventTypes/topic.publish
+          event_trigger_resource: projects/${{ vars.GCP_PROJECT }}/topics/run_user_playlist
