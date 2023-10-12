@@ -12,6 +12,7 @@ tarballs/
 test-results/
 
 creds.sh
+gcp_cred.json
 
 # Mac bundle stuff
 *.dmg
