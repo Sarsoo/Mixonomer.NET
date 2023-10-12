@@ -50,7 +50,8 @@ jobs:
           --region europe-west2 \
           --gen2 \
           --runtime=dotnet6 \
-          --trigger-topic RunUserPlaylist \
+          --entry-point Mixonomer.Func.RunUserPlaylist \
+          --trigger-topic run_user_playlist \
           --set-env-vars GOOGLE_CLOUD_PROJECT=${{ vars.GCP_PROJECT }} \
           --service-account runuserplaylist-func@${{ vars.GCP_PROJECT }}.iam.gserviceaccount.com \
           --set-build-env-vars=GOOGLE_BUILDABLE=Mixonomer.Func
