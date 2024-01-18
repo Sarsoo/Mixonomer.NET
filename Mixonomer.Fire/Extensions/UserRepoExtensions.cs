@@ -4,60 +4,69 @@ using System.Threading.Tasks;
 using Google.Cloud.Firestore;
 using Mixonomer.Fire.Model;
 
-namespace Mixonomer.Fire.Extensions
+namespace Mixonomer.Fire.Extensions;
+
+public static class UserRepoExtensions
 {
-    public static class UserRepoExtensions
+    public static async IAsyncEnumerable<User> GetUsers(this UserRepo repo)
     {
-        public static async Task<IAsyncEnumerable<DocumentSnapshot>> GetPlaylistDocs(this UserRepo repo, string username)
+        var users = repo.GetUserDocs();
+
+        await foreach (var user in users)
         {
-            var user = await repo.GetUser(username).ConfigureAwait(false);
-
-            return await repo.GetPlaylistDocs(user).ConfigureAwait(false);
+            yield return user.ConvertTo<User>();
         }
+    }
 
-        public static async IAsyncEnumerable<Playlist> GetPlaylists(this UserRepo repo, User user)
+    public static async Task<IAsyncEnumerable<DocumentSnapshot>> GetPlaylistDocs(this UserRepo repo, string username)
+    {
+        var user = await repo.GetUser(username).ConfigureAwait(false);
+
+        return repo.GetPlaylistDocs(user);
+    }
+
+    public static async IAsyncEnumerable<Playlist> GetPlaylists(this UserRepo repo, User user)
+    {
+        var playlists = repo.GetPlaylistDocs(user);
+
+        await foreach (var playlist in playlists)
         {
-            var playlists = await repo.GetPlaylistDocs(user).ConfigureAwait(false);
-
-            await foreach (var playlist in playlists)
-            {
-                yield return playlist.ConvertTo<Playlist>();
-            }
+            yield return playlist.ConvertTo<Playlist>();
         }
+    }
 
-        public static async Task<IAsyncEnumerable<DocumentSnapshot>> GetTagDocs(this UserRepo repo, string username)
+    public static async Task<IAsyncEnumerable<DocumentSnapshot>> GetTagDocs(this UserRepo repo, string username)
+    {
+        var user = await repo.GetUser(username).ConfigureAwait(false);
+
+        return repo.GetTagDocs(user);
+    }
+
+    public static async IAsyncEnumerable<Tag> GetTags(this UserRepo repo, User user)
+    {
+        var tags = repo.GetTagDocs(user);
+
+        await foreach (var tag in tags)
         {
-            var user = await repo.GetUser(username).ConfigureAwait(false);
-
-            return await repo.GetTagDocs(user).ConfigureAwait(false);
+            yield return tag.ConvertTo<Tag>();
         }
+    }
 
-        public static async IAsyncEnumerable<Tag> GetTags(this UserRepo repo, User user)
+    public static async Task<UserContext> GetUserContext(this UserRepo repo, string username)
+    {
+        var user = new UserContext
         {
-            var tags = await repo.GetTagDocs(user).ConfigureAwait(false);
+            User = await repo.GetUser(username).ConfigureAwait(false)
+        };
 
-            await foreach (var tag in tags)
-            {
-                yield return tag.ConvertTo<Tag>();
-            }
-        }
+        var playlists = repo.GetPlaylists(user.User).ToListAsync();
+        var tags = repo.GetTags(user.User).ToListAsync();
 
-        public static async Task<UserContext> GetUserContext(this UserRepo repo, string username)
-        {
-            var user = new UserContext
-            {
-                User = await repo.GetUser(username).ConfigureAwait(false)
-            };
+        await Task.WhenAll(playlists.AsTask(), tags.AsTask()).ConfigureAwait(false);
 
-            var playlists = repo.GetPlaylists(user.User).ToListAsync();
-            var tags = repo.GetTags(user.User).ToListAsync();
+        user.Playlists = playlists.Result;
+        user.Tags = tags.Result;
 
-            await Task.WhenAll(playlists.AsTask(), tags.AsTask()).ConfigureAwait(false);
-
-            user.Playlists = playlists.Result;
-            user.Tags = tags.Result;
-
-            return user;
-        }
+        return user;
     }
 }

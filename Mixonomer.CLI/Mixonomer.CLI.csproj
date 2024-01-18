@@ -3,9 +3,11 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Mixonomer.Fire\Mixonomer.Fire.csproj" />
+    <ProjectReference Include="..\Mixonomer.Playlist\Mixonomer.Playlist.csproj" />
   </ItemGroup>
 </Project>

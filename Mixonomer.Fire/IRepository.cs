@@ -1,9 +1,7 @@
 ﻿using System;
-namespace Mixonomer.Fire
+namespace Mixonomer.Fire;
+
+public interface IRepository
 {
-    public interface IRepository
-    {
 
-    }
 }
-

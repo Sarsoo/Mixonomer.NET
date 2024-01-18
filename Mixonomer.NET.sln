@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mixonomer.Tests", "Mixonome
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mixonomer.CLI", "Mixonomer.CLI\Mixonomer.CLI.csproj", "{7469F571-DBF2-4D60-85FE-4041C445A490}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mixonomer.Playlist", "Mixonomer.Playlist\Mixonomer.Playlist.csproj", "{274560D0-2EBB-4C6D-BA45-2270DB92F12C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{7469F571-DBF2-4D60-85FE-4041C445A490}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7469F571-DBF2-4D60-85FE-4041C445A490}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7469F571-DBF2-4D60-85FE-4041C445A490}.Release|Any CPU.Build.0 = Release|Any CPU
+		{274560D0-2EBB-4C6D-BA45-2270DB92F12C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{274560D0-2EBB-4C6D-BA45-2270DB92F12C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{274560D0-2EBB-4C6D-BA45-2270DB92F12C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{274560D0-2EBB-4C6D-BA45-2270DB92F12C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
