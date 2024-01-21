@@ -3,7 +3,7 @@ name: ci
 on: [push]
 
 env:
-  dotnet-version: '6.0.x'
+  dotnet-version: '8.0.x'
 
 jobs:
   build:
@@ -49,7 +49,7 @@ jobs:
           gcloud functions deploy RunUserPlaylist \
           --region europe-west2 \
           --gen2 \
-          --runtime=dotnet6 \
+          --runtime=dotnet8 \
           --entry-point Mixonomer.Func.RunUserPlaylist \
           --trigger-topic run_user_playlist \
           --set-env-vars GOOGLE_CLOUD_PROJECT=${{ vars.GCP_PROJECT }} \
@@ -80,7 +80,7 @@ jobs:
           gcloud functions deploy RunUserPlaylist \
           --region europe-west2 \
           --gen2 \
-          --runtime=dotnet6 \
+          --runtime=dotnet8 \
           --entry-point Mixonomer.Func.RunUserPlaylist \
           --trigger-topic run_user_playlist \
           --set-env-vars GOOGLE_CLOUD_PROJECT=${{ vars.GCP_PROJECT }} \
