@@ -8,6 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mixonomer.Fire\Mixonomer.Fire.csproj" />
-    <ProjectReference Include="..\Mixonomer.Playlist\Mixonomer.Playlist.csproj" />
+    <ProjectReference Include="..\Mixonomer\Mixonomer.csproj" />
   </ItemGroup>
 </Project>

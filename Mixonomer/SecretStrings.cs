@@ -1,4 +1,4 @@
-namespace Mixonomer.Playlist;
+namespace Mixonomer;
 
 public static class SecretStrings
 {

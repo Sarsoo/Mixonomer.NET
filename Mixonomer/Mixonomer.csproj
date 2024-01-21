@@ -12,7 +12,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Inflatable.Lastfm" Version="1.2.0" />
       <PackageReference Include="SpotifyAPI.Web" Version="7.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Last.fm\" />
     </ItemGroup>
 
 </Project>

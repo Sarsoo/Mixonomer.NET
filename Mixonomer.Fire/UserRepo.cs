@@ -15,7 +15,7 @@ public class UserRepo
 
     public UserRepo(FirestoreDb db = null, string projectId = null)
     {
-        this.db = db ?? FirestoreDb.Create(projectId);
+        this.db = db ?? FirestoreDb.Create(projectId ?? Environment.GetEnvironmentVariable("GOOGLE_CLOUD_PROJECT"));
         userCollection = this.db.Collection(USER_COLLECTION);
     }
 

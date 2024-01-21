@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mixonomer.Fire;
+using SpotifyAPI.Web;
 
 namespace Mixonomer.Func;
 
@@ -17,10 +18,14 @@ namespace Mixonomer.Func;
 public class RunUserPlaylist : ICloudEventFunction<MessagePublishedData>
 {
     private readonly ILogger _logger;
+    private readonly UserRepo _userRepo;
+    private readonly SpotifyNetworkProvider _spotifyMetworkProvider;
 
-    public RunUserPlaylist(ILogger<RunUserPlaylist> logger)
+    public RunUserPlaylist(ILogger<RunUserPlaylist> logger, UserRepo userRepo, SpotifyNetworkProvider spotifyMetworkProvider)
     {
         _logger = logger;
+        _userRepo = userRepo;
+        _spotifyMetworkProvider = spotifyMetworkProvider;
     }
 
 
@@ -28,9 +33,10 @@ public class RunUserPlaylist : ICloudEventFunction<MessagePublishedData>
     {
         _logger.LogInformation($"Received message in C# {data.Message}, {cloudEvent.GetPopulatedAttributes()}");
 
-        var userRepo = new UserRepo(projectId: System.Environment.GetEnvironmentVariable("GOOGLE_CLOUD_PROJECT"));
+        var user = await _userRepo.GetUser(data.Message.Attributes["username"]);
 
-        var user = await userRepo.GetUser(data.Message.Attributes["username"]);
+        var spotifyConfig = await _spotifyMetworkProvider.GetUserConfig(user);
+        var spotifyClient = new SpotifyClient(spotifyConfig);
 
         _logger.LogInformation($"{user.username} was last refreshed at {user.last_refreshed}");
     }
@@ -43,5 +49,10 @@ public class RunUserPlaylistStartup : FunctionsStartup
         base.ConfigureServices(context, services);
 
         services.AddSecretManagerServiceClient();
+        // services.AddFirestoreClient();
+
+        services.AddTransient<SpotifyNetworkProvider>()
+                .AddTransient<PlaylistGenerator>()
+                .AddSingleton<UserRepo>();
     }
 }

@@ -2,7 +2,7 @@ using Google.Cloud.Firestore;
 using Mixonomer.Fire;
 using Mixonomer.Fire.Extensions;
 
-namespace Mixonomer.Playlist;
+namespace Mixonomer;
 
 public class PartTreeWalker
 {
@@ -10,22 +10,24 @@ public class PartTreeWalker
 
     private readonly HashSet<string> _processedPlaylists = new();
     public HashSet<string>? SpotifyPlaylistNames { get; private set; }
+    private List<Playlist> _userPlaylists;
 
     public PartTreeWalker(UserRepo userRepo)
     {
         _userRepo = userRepo;
     }
 
-    public async Task<IEnumerable<string>> GetPlaylistParts(string username, string playlistName)
+    public async Task<IEnumerable<string>?> GetPlaylistParts(string username, string playlistName)
     {
         var user = await _userRepo.GetUser(username);
 
         return await GetPlaylistParts(user, playlistName);
     }
 
-    public async Task<IEnumerable<string>> GetPlaylistParts(User user, string playlistName)
+    public async Task<IEnumerable<string>?> GetPlaylistParts(User user, string playlistName)
     {
-        var playlist = await _userRepo.GetPlaylists(user).Where(x => x.name == playlistName).FirstOrDefaultAsync();
+        _userPlaylists = await _userRepo.GetPlaylists(user).ToListAsync();
+        var playlist = _userPlaylists.SingleOrDefault(x => x.name == playlistName);
 
         if (playlist is not null)
         {
@@ -33,28 +35,31 @@ public class PartTreeWalker
 
             foreach (var part in playlist.playlist_references)
             {
-                await ProcessPlaylist(part);
+                ProcessPlaylist(part);
             }
         }
 
         return SpotifyPlaylistNames;
     }
 
-    private async Task ProcessPlaylist(DocumentReference documentReference)
+    private void ProcessPlaylist(DocumentReference documentReference)
     {
         if (!_processedPlaylists.Contains(documentReference.Id))
         {
-            var playlist = (await documentReference.GetSnapshotAsync()).ConvertTo<Fire.Playlist>();
+            var playlist = _userPlaylists.SingleOrDefault(x => x.Reference.Id == documentReference.Id);
 
             _processedPlaylists.Add(documentReference.Id);
-            foreach (var p in playlist.parts)
+            if (playlist != null)
             {
-                SpotifyPlaylistNames?.Add(p);
-            }
+                foreach (var p in playlist.parts)
+                {
+                    SpotifyPlaylistNames?.Add(p);
+                }
 
-            foreach (var p in playlist.playlist_references)
-            {
-                await ProcessPlaylist(p);
+                foreach (var p in playlist.playlist_references)
+                {
+                    ProcessPlaylist(p);
+                }
             }
         }
     }
