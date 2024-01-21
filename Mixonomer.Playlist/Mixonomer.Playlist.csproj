@@ -11,4 +11,8 @@
       <ProjectReference Include="..\Mixonomer.Fire\Mixonomer.Fire.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="SpotifyAPI.Web" Version="7.0.2" />
+    </ItemGroup>
+
 </Project>
