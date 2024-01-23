@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mixonomer.Fire;
+using Mixonomer.Playlist;
 using SpotifyAPI.Web;
 
 namespace Mixonomer.Func;

@@ -10,7 +10,7 @@ public class PartTreeWalker
 
     private readonly HashSet<string> _processedPlaylists = new();
     public HashSet<string>? SpotifyPlaylistNames { get; private set; }
-    private List<Playlist> _userPlaylists;
+    private List<Fire.Playlist> _userPlaylists;
 
     public PartTreeWalker(UserRepo userRepo)
     {

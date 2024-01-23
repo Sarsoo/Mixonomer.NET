@@ -35,6 +35,14 @@ public class SpotifyNetworkProvider
         var refreshed = await new OAuthClient()
             .RequestToken(new AuthorizationCodeRefreshRequest(spotifyClientStr, spotifySecretStr, user.refresh_token));
 
+        await WriteUserTokenUpdate(user, new
+        {
+            access_token = refreshed.AccessToken,
+            refresh_token = refreshed.RefreshToken,
+            last_refreshed = refreshed.CreatedAt,
+            token_expiry = refreshed.ExpiresIn
+        });
+
         var authenticator = new AuthorizationCodeAuthenticator(spotifyClientStr, spotifySecretStr, new()
         {
             AccessToken = refreshed.AccessToken,
@@ -47,21 +55,13 @@ public class SpotifyNetworkProvider
 
         authenticator.TokenRefreshed += async (sender, resp) =>
         {
-            try
+            await WriteUserTokenUpdate(user, new
             {
-                _logger.LogInformation("Token refreshed for [{}], writing to database", user.username);
-                await user.Reference.SetAsync(new
-                {
-                    access_token = resp.AccessToken,
-                    refresh_token = resp.RefreshToken,
-                    last_refreshed = resp.CreatedAt,
-                    token_expiry = resp.ExpiresIn
-                }, SetOptions.MergeAll);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Failed to write updated Spotify tokens to database for [{}]", user.username);
-            }
+                access_token = resp.AccessToken,
+                refresh_token = resp.RefreshToken,
+                last_refreshed = resp.CreatedAt,
+                token_expiry = resp.ExpiresIn
+            });
         };
 
         var config = SpotifyClientConfig
@@ -69,5 +69,18 @@ public class SpotifyNetworkProvider
             .WithAuthenticator(authenticator);
 
         return config;
+    }
+
+    private async Task WriteUserTokenUpdate(User user, object updates)
+    {
+        try
+        {
+            _logger.LogInformation("Token refreshed for [{}], writing to database", user.username);
+            await user.Reference.SetAsync(updates, SetOptions.MergeAll);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to write updated Spotify tokens to database for [{}]", user.username);
+        }
     }
 }
