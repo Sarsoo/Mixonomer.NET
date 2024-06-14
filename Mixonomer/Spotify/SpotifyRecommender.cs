@@ -1,3 +1,4 @@
+using Mixonomer.Extensions;
 using Mixonomer.Playlist;
 using Mixonomer.Playlist.Sort;
 using SpotifyAPI.Web;
@@ -23,11 +24,16 @@ public class SpotifyRecommender: IRecommend
                 Limit = playlist.recommendation_sample
             };
 
+            foreach (var track in currentTrackList.Shuffle().Take(5))
+            {
+                request.SeedTracks.Add(track.TrackUri.UriToId());
+            }
+
             var response = await _client.Browse.GetRecommendations(request);
 
             return response.Tracks.Select(x => (CommonTrack) x);
         }
 
-        return Enumerable.Empty<CommonTrack>();
+        return [];
     }
 }

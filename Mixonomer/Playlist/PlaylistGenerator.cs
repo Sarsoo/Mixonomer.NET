@@ -57,10 +57,10 @@ public class PlaylistGenerator
 
         var combinedTracks = CollapseContextToCommonTracks(context);
 
-        // var recommender = new SpotifyRecommender(spotifyClient);
-        // var recommendations = await recommender.GetRecommendations(dbPlaylist, combinedTracks);
-        //
-        // combinedTracks = combinedTracks.Concat(recommendations);
+        var recommender = new SpotifyRecommender(spotifyClient);
+        var recommendations = await recommender.GetRecommendations(dbPlaylist, combinedTracks);
+
+        combinedTracks = combinedTracks.Concat(recommendations);
 
         // combinedTracks = combinedTracks.DistinctBy(x => (x.TrackName, string.Join(':', x.ArtistNames.Order())));
         // combinedTracks = combinedTracks.DistinctBy(x => x.TrackUri);

@@ -54,6 +54,7 @@ public class RunUserPlaylistStartup : FunctionsStartup
 
         services.AddTransient<SpotifyNetworkProvider>()
                 .AddTransient<PlaylistGenerator>()
+                .AddTransient<PartTreeWalker>()
                 .AddSingleton<UserRepo>();
     }
 }
