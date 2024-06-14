@@ -18,7 +18,10 @@ public class SpotifyRecommender: IRecommend
     {
         if (playlist.include_recommendations)
         {
-            var request = new RecommendationsRequest();
+            var request = new RecommendationsRequest()
+            {
+                Limit = playlist.recommendation_sample
+            };
 
             var response = await _client.Browse.GetRecommendations(request);
 

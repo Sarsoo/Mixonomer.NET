@@ -38,7 +38,7 @@ public class SpotifyNetworkProvider
         await WriteUserTokenUpdate(user, new
         {
             access_token = refreshed.AccessToken,
-            refresh_token = refreshed.RefreshToken,
+            refresh_token = refreshed.RefreshToken ?? user.refresh_token,
             last_refreshed = refreshed.CreatedAt,
             token_expiry = refreshed.ExpiresIn
         });
@@ -58,7 +58,7 @@ public class SpotifyNetworkProvider
             await WriteUserTokenUpdate(user, new
             {
                 access_token = resp.AccessToken,
-                refresh_token = resp.RefreshToken,
+                refresh_token = resp.RefreshToken ?? user.refresh_token,
                 last_refreshed = resp.CreatedAt,
                 token_expiry = resp.ExpiresIn
             });

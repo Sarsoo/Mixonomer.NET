@@ -16,17 +16,13 @@ class Program
     {
         var repo = new UserRepo(projectId: System.Environment.GetEnvironmentVariable("GOOGLE_CLOUD_PROJECT"));
 
-        var userContext = await repo.GetUserContext("andy");
-
-        Console.WriteLine(userContext.User);
-
         var walker = new PartTreeWalker(repo);
-        var partPlaylists = await walker.GetPlaylistParts("andy", "RAP");
+        // var partPlaylists = await walker.GetPlaylistParts("andy", "RAP");
 
         var spotifyNetwork = new SpotifyNetworkProvider(repo, null, NullLogger<SpotifyNetworkProvider>.Instance);
 
         var generator = new PlaylistGenerator(repo, spotifyNetwork, walker, NullLogger<PlaylistGenerator>.Instance);
 
-        await generator.GeneratePlaylist("RAP", "andy");
+        await generator.GeneratePlaylist("POP", "andy");
     }
 }

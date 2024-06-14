@@ -1,5 +1,7 @@
+using Google.Cloud.Firestore;
 using Microsoft.Extensions.Logging;
 using Mixonomer.Exceptions;
+using Mixonomer.Extensions;
 using Mixonomer.Fire;
 using Mixonomer.Fire.Extensions;
 using Mixonomer.Playlist.Sort;
@@ -26,6 +28,8 @@ public class PlaylistGenerator
     {
         using var logScope = _logger.BeginScope(new Dictionary<string, string> { {"username", username}, {"playlist", playlistName} });
 
+        ArgumentException.ThrowIfNullOrWhiteSpace(username);
+
         var user = await _userRepo.GetUser(username);
         var dbPlaylist = await _userRepo.GetPlaylists(user).FirstOrDefaultAsync(x => x.name == playlistName);
 
@@ -45,14 +49,31 @@ public class PlaylistGenerator
 
         var context = new PlaylistGeneratingContext
         {
-            PartTracks = await GetPlatlistTracks(spotifyClient, partPlaylists).ToListAsync(),
+            PartTracks = await GetPlaylistTracks(spotifyClient, partPlaylists).ToListAsync(),
             LibraryTracks = await GetLibraryTracks(spotifyClient, dbPlaylist).ToListAsync()
         };
 
         context = DoPlaylistTypeProcessing(context, user, dbPlaylist);
 
         var combinedTracks = CollapseContextToCommonTracks(context);
+
+        // var recommender = new SpotifyRecommender(spotifyClient);
+        // var recommendations = await recommender.GetRecommendations(dbPlaylist, combinedTracks);
+        //
+        // combinedTracks = combinedTracks.Concat(recommendations);
+
+        // combinedTracks = combinedTracks.DistinctBy(x => (x.TrackName, string.Join(':', x.ArtistNames.Order())));
+        // combinedTracks = combinedTracks.DistinctBy(x => x.TrackUri);
+        combinedTracks = combinedTracks.DistinctBy(x => (x.TrackName.ToLower(), string.Concat(x.ArtistNames.Order())));
+
         combinedTracks = SortTracks(combinedTracks, dbPlaylist);
+
+        await ExecutePlaylist(spotifyClient, dbPlaylist, user, combinedTracks, parts);
+
+        await dbPlaylist.Reference.SetAsync(new
+        {
+            last_updated = DateTime.UtcNow
+        }, SetOptions.MergeAll);
     }
 
     private async Task<IEnumerable<string>> GetFullPartList(User user, Fire.Playlist playlist)
@@ -79,32 +100,34 @@ public class PlaylistGenerator
 
     private IEnumerable<FullPlaylist> GetPartPlaylists(Fire.Playlist subjectPlaylist, IEnumerable<FullPlaylist> allPlaylists, IEnumerable<string> parts)
     {
-        var allPlaylistDict = allPlaylists.ToDictionary(p => p.Name ?? "no name");
-
-        foreach (var part in parts)
+        foreach (var playlist in allPlaylists)
         {
-            if (allPlaylistDict.TryGetValue(part, out var playlist))
+            foreach (var part in parts)
             {
-                if (!subjectPlaylist.include_spotify_owned &&
-                    (playlist.Owner?.DisplayName.Contains("spotify", StringComparison.InvariantCultureIgnoreCase) ?? false))
+                if (playlist.Name?.Equals(part, StringComparison.Ordinal) ?? false)
                 {
-                    // skip
-                }
-                else
-                {
-                    yield return playlist;
+                    if (!subjectPlaylist.include_spotify_owned &&
+                        (playlist.Owner?.DisplayName.Contains("spotify", StringComparison.InvariantCultureIgnoreCase) ??
+                         false))
+                    {
+                        // skip
+                    }
+                    else
+                    {
+                        yield return playlist;
+                    }
                 }
             }
         }
     }
 
-    private async IAsyncEnumerable<PlaylistTrack<IPlayableItem>> GetPlatlistTracks(SpotifyClient client, IEnumerable<FullPlaylist> playlists)
+    private async IAsyncEnumerable<PlaylistTrack<IPlayableItem>> GetPlaylistTracks(SpotifyClient client, IEnumerable<FullPlaylist> playlists)
     {
         foreach (var playlist in playlists)
         {
             if (playlist.Tracks is { } tracks)
             {
-                foreach (var track in await client.PaginateAll(tracks))
+                foreach (var track in await client.PaginateAll(await client.Playlists.GetItems(playlist.Id)))
                 {
                     yield return track;
                 }
@@ -128,11 +151,8 @@ public class PlaylistGenerator
         return context;
     }
 
-    protected virtual IEnumerable<CommonTrack> CollapseContextToCommonTracks(PlaylistGeneratingContext context)
-    {
-        return context.PartTracks.Select(x => (CommonTrack)x)
-            .Concat(context.LibraryTracks.Select(x => (CommonTrack)x));
-    }
+    protected virtual IEnumerable<CommonTrack> CollapseContextToCommonTracks(PlaylistGeneratingContext context) =>
+        context.ToCommonTracks();
 
     protected virtual IEnumerable<CommonTrack> SortTracks(IEnumerable<CommonTrack> tracks, Fire.Playlist playlist)
     {
@@ -143,6 +163,23 @@ public class PlaylistGenerator
         else
         {
             return tracks.OrderByReleaseDate();
+        }
+    }
+
+    protected virtual async Task ExecutePlaylist(SpotifyClient client, Fire.Playlist playlist, User user, IEnumerable<CommonTrack> tracks, IEnumerable<string> partList)
+    {
+        var chunks = tracks.Select(x => x.TrackUri).Chunk(100);
+        var playlistId = playlist.uri.UriToId();
+
+        if (chunks.FirstOrDefault() is { } chunk)
+        {
+            await client.Playlists.ReplaceItems(playlist.uri.UriToId(),
+                new PlaylistReplaceItemsRequest(chunk.ToList()));
+        }
+
+        foreach (var remainingChunk in chunks.Skip(1))
+        {
+            await client.Playlists.AddItems(playlistId, new PlaylistAddItemsRequest(remainingChunk));
         }
     }
 }

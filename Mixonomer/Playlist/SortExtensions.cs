@@ -11,8 +11,11 @@ public static class SortExtensions
             .ThenBy(x => x.TrackNumber);
 
     public static IOrderedEnumerable<CommonTrack> OrderByReleaseDate(this IEnumerable<CommonTrack> input) =>
-        input.OrderByArtistAlbumTrackNumber()
-            .ThenByDescending(x => x.ReleaseDate);
+        input.OrderByDescending(x => x.ReleaseDate)
+            .ThenBy(x => x.AlbumArtistNames.First())
+            .ThenBy(x => x.AlbumName)
+            .ThenBy(x => x.DiscNumber)
+            .ThenBy(x => x.TrackNumber);
 
     public static IOrderedEnumerable<CommonTrack> Shuffle(this IEnumerable<CommonTrack> input) =>
         input.OrderBy(x => _rng.Next());
