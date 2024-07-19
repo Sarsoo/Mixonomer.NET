@@ -1,0 +1,29 @@
+name: ci
+
+on: [push]
+
+env:
+  dotnet-version: '8.0.x'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build & Unit Test
+    steps:
+      - uses: actions/checkout@v4
+        with: 
+          github-server-url: https://gitea.sheep-ghoul.ts.net
+
+      - name: Setup .NET Core SDK ${{ env.dotnet-version }}
+        uses: actions/setup-dotnet@v3.2.0
+        with:
+          dotnet-version: ${{ env.dotnet-version }}
+
+      - name: Install Dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal
